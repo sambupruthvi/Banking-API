@@ -1,9 +1,11 @@
 package com.codebank.accounts.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.*;
 
+@Entity
 @Getter @Setter @ToString @NoArgsConstructor @AllArgsConstructor
 public class Accounts extends BaseEntity{
 
