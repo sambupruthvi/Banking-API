@@ -1,10 +1,13 @@
 package com.codebank.accounts.service.impl;
 
 import com.codebank.accounts.constants.AccountsConstants;
+import com.codebank.accounts.dto.AccountsDto;
 import com.codebank.accounts.dto.CustomerDto;
 import com.codebank.accounts.entity.Accounts;
 import com.codebank.accounts.entity.Customer;
 import com.codebank.accounts.exceptions.CustomerAlreadyExistsException;
+import com.codebank.accounts.exceptions.ResourceNotFoundException;
+import com.codebank.accounts.mapper.AccountsMapper;
 import com.codebank.accounts.mapper.CustomerMapper;
 import com.codebank.accounts.repository.AccountsRepository;
 import com.codebank.accounts.repository.CustomerRepository;
@@ -38,6 +41,7 @@ public class AccountsServiceImpl implements IAccountsService {
         accountsRepository.save(createNewAccount(newCustomer));
     }
 
+
     /**
      * @param customer - Customer Object
      * @return the new account details
@@ -53,5 +57,19 @@ public class AccountsServiceImpl implements IAccountsService {
         newAccount.setCreatedAt(LocalDateTime.now());
         newAccount.setCreatedBy("Pruthvi Sambu");
         return newAccount;
+    }
+
+
+    @Override
+    public CustomerDto fetchAccount(String mobileNumber) {
+        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
+                () -> new ResourceNotFoundException("customer", "mobileNumber", mobileNumber)
+        );
+        Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(
+                () -> new ResourceNotFoundException("accounts", "customerId", customer.getCustomerId().toString())
+        );
+        CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer, new CustomerDto());
+        customerDto.setAccountsDto(AccountsMapper.mapToAccountsDto(accounts, new AccountsDto()));
+        return customerDto;
     }
 }
